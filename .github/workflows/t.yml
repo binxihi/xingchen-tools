@@ -1,0 +1,9 @@
+name: t
+on:
+  workflow_dispatch: {}
+jobs:
+  x:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: uname -a && echo UBUNTU_RUNNER_OK
