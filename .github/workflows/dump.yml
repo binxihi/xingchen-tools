@@ -10,7 +10,7 @@ jobs:
       - name: Run dump pipeline
         run: bash scripts/dump.sh
       - name: Show emulator log on failure
-        if: failure()
+        if: always()
         run: tail -80 emu.log 2>/dev/null || true
       - name: Upload dex artifacts
         if: always()
