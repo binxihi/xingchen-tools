@@ -3,7 +3,7 @@ on:
   workflow_dispatch: {}
 jobs:
   dump:
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     timeout-minutes: 100
     steps:
       - uses: actions/checkout@v4

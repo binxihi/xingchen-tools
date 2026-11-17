@@ -12,15 +12,15 @@ mkdir -p "$ANDROID_HOME/cmdline-tools"
 mv cmdline-tools "$ANDROID_HOME/cmdline-tools/latest"
 SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
 yes | "$SDKM" --licenses >/dev/null 2>&1 || true
-"$SDKM" "emulator" "platform-tools" "system-images;android-33;google_apis;arm64-v8a" >/dev/null
+"$SDKM" "emulator" "platform-tools" "system-images;android-33;google_apis;x86_64" >/dev/null
 # 2) frida server + python libs
-curl -sSLo fs.xz https://github.com/frida/frida/releases/download/16.7.19/frida-server-16.7.19-android-arm64.xz
+curl -sSLo fs.xz https://github.com/frida/frida/releases/download/16.7.19/frida-server-16.7.19-android-x86_64.xz
 xz -d fs.xz && chmod +x fs
 python3 -m pip install --quiet frida==16.7.19 frida-tools==12.4.0
 git clone --depth 1 https://github.com/hluwa/FRIDA-DEXDump.git
 # 3) AVD + boot (M1 native arm64, Hypervisor accelerated)
 AVDM="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
-echo no | "$AVDM" create avd -n tga -k "system-images;android-33;google_apis;arm64-v8a" --force
+echo no | "$AVDM" create avd -n tga -k "system-images;android-33;google_apis;x86_64" --force
 export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
 nohup emulator -avd tga -no-window -no-snapshot -gpu swiftshader_indirect -no-audio -no-boot-anim > emu.log 2>&1 &
 adb wait-for-device
