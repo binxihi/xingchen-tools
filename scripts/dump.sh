@@ -22,8 +22,24 @@ git clone --depth 1 https://github.com/hluwa/FRIDA-DEXDump.git
 AVDM="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
 echo no | "$AVDM" create avd -n tga -k "system-images;android-33;google_apis;x86_64" --force
 export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
-nohup emulator -avd tga -no-window -no-snapshot -gpu swiftshader_indirect -no-audio -no-boot-anim > emu.log 2>&1 &
-adb wait-for-device
+nohup emulator -avd tga -no-accel -no-window -no-snapshot -gpu swiftshader_indirect -no-audio -no-boot-anim > emu.log 2>&1 &
+adb wait-for-device &
+WAITER=$!
+EMU_FAILED=0
+for i in $(seq 1 6); do
+  if grep -qiE "FATAL|not supported|requires hardware acceleration|emulator: ERROR" emu.log 2>/dev/null; then
+    echo "=== EMU_FAILED_EARLY ==="
+    tail -25 emu.log
+    EMU_FAILED=1
+    kill $WAITER 2>/dev/null
+    exit 1
+  fi
+  sleep 10
+done
+if [ "$EMU_FAILED" = "0" ] && ! kill -0 $WAITER 2>/dev/null; then
+  adb devices -l
+  echo "=== adb device registered, continuing boot wait ==="
+fi
 for i in $(seq 1 150); do
   BC=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
   if [ "$BC" = "1" ]; then echo "BOOT_OK after $((i*10))s"; break; fi
