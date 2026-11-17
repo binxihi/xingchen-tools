@@ -1,0 +1,21 @@
+name: dump
+on:
+  workflow_dispatch: {}
+jobs:
+  dump:
+    runs-on: macos-14
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run dump pipeline
+        run: bash scripts/dump.sh
+      - name: Show emulator log on failure
+        if: failure()
+        run: tail -80 emu.log 2>/dev/null || true
+      - name: Upload dex artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dumped-dex
+          path: out/
+          if-no-files-found: warn
